@@ -73,13 +73,17 @@
   transform: translateX(100%);
   opacity: 0;
   transition: .3s;
-
+  background-color: var(--whtie-color);
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 .settings-bar--open {
   transform: translateX(0);
   opacity: 1;
+}
+
+.dark-theme .settings-bar {
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .settings-bar__theme {

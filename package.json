@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "on-change": "^5.0.1",
     "rollup": "^4.18.0",
     "rollup-plugin-import-css": "^3.5.0"
   },
