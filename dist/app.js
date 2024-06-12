@@ -65,7 +65,46 @@
     }
   }
 
+  class Modal extends DivComponent {
+    constructor() {
+      super();
+    }
+
+    render(msg, modalType) {
+      this.el.classList.add('modal');
+      this.el.classList.add(`modal--${modalType}`);
+
+      this.el.innerHTML = `
+    <div class="modal__wrapper">
+      <span class="modal__message">${msg}</span>
+      <button class="modal__btn-close"></button>
+    </div>
+    <div class="modal-timeline"></div>
+    `;
+
+      setTimeout(() => {
+        this.el.classList.add('modal--open');
+      }, 300);
+
+
+      this.el.querySelector(".modal__btn-close").addEventListener('click', this.destroy.bind(this));
+      this.el.querySelector('.modal__btn-close').classList.add('modal-timeline--end');
+      setTimeout(() => {
+        this.destroy();
+      }, 3500);
+      return this.el
+    }
+
+    destroy() {
+      this.el.classList.remove("modal--open");
+      setTimeout(() => {
+        this.el.remove();
+      }, 300);
+    }
+  }
+
   class SettingsBar extends DivComponent {
+    #themeKey = 'theme'
     constructor(appState) {
       super();
       this.appState = appState;
@@ -90,8 +129,14 @@
     `;
 
       this.el.querySelector('.switch-theme__input').addEventListener('click', () => {
-        if (this.appState.theme === "light") this.appState.theme = 'dark';
-        else if (this.appState.theme === "dark") this.appState.theme = 'light';
+        if (this.appState.theme === "light") {
+          localStorage.setItem(this.#themeKey, JSON.stringify('dark'));
+          this.appState.theme = 'dark';
+        }
+        else if (this.appState.theme === "dark") {
+          localStorage.setItem(this.#themeKey, JSON.stringify('light'));
+          this.appState.theme = 'light';
+        }
       });
 
       return this.el
@@ -1186,6 +1231,8 @@
   onChange.unsubscribe = proxy => proxy?.[UNSUBSCRIBE] ?? proxy;
 
   class App {
+    #themeKey = 'theme'
+    #themeDefault = "light"
     constructor() {
       this.app = document.getElementById('root');
       this.appState = onChange(this.appState, this.appStateHook.bind(this));
@@ -1193,12 +1240,13 @@
     }
 
     appState = {
-      theme: 'light'
+      theme: localStorage.getItem(this.#themeKey) ? JSON.parse(localStorage.getItem(this.#themeKey)) : this.#themeDefault
     }
 
     appStateHook(path) {
       if (path === "theme") {
         this.render();
+        this.app.prepend(new Modal().render('Тема изменена!', "succes"));
       }
     }
 

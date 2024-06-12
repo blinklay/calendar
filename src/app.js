@@ -1,8 +1,11 @@
 import { Header } from "./components/header/header"
+import { Modal } from "./components/modal/modal"
 import { SettingsBar } from "./components/settings-bar/settings-bar"
 import onChange from "on-change"
 
 class App {
+  #themeKey = 'theme'
+  #themeDefault = "light"
   constructor() {
     this.app = document.getElementById('root')
     this.appState = onChange(this.appState, this.appStateHook.bind(this))
@@ -10,12 +13,13 @@ class App {
   }
 
   appState = {
-    theme: 'light'
+    theme: localStorage.getItem(this.#themeKey) ? JSON.parse(localStorage.getItem(this.#themeKey)) : this.#themeDefault
   }
 
   appStateHook(path) {
     if (path === "theme") {
       this.render()
+      this.app.prepend(new Modal().render('Тема изменена!', "succes"))
     }
   }
 

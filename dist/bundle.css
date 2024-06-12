@@ -62,6 +62,57 @@
 .header__settings-btn:hover {
   transform: rotate(-90deg);
 }
+.modal {
+  position: fixed;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--gray-color-2);
+  color: #fff;
+  padding: 15px 30px;
+  border-radius: 6px;
+  transition: .3s;
+  opacity: 0;
+}
+
+.modal--open {
+  top: 0;
+  opacity: 1;
+}
+
+.modal__wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-timeline {
+  width: 100%;
+  background-color: rgb(43, 240, 43);
+  height: 3px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  transition: 3.5s ease;
+  transform-origin: left;
+  transform: scaleX(1);
+}
+
+.modal--open .modal-timeline {
+  transform: scaleX(0);
+}
+
+.modal__btn-close {
+  width: 25px;
+  height: 25px;
+  background-image: url("../static/pictures/close.png");
+  background-size: cover;
+  background-position: center;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
 .settings-bar {
   position: fixed;
   top: 0;

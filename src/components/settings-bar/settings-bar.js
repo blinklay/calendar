@@ -3,6 +3,7 @@ import { DivComponent } from "../../common/div-component";
 
 
 export class SettingsBar extends DivComponent {
+  #themeKey = 'theme'
   constructor(appState) {
     super()
     this.appState = appState
@@ -27,8 +28,14 @@ export class SettingsBar extends DivComponent {
     `
 
     this.el.querySelector('.switch-theme__input').addEventListener('click', () => {
-      if (this.appState.theme === "light") this.appState.theme = 'dark'
-      else if (this.appState.theme === "dark") this.appState.theme = 'light'
+      if (this.appState.theme === "light") {
+        localStorage.setItem(this.#themeKey, JSON.stringify('dark'))
+        this.appState.theme = 'dark'
+      }
+      else if (this.appState.theme === "dark") {
+        localStorage.setItem(this.#themeKey, JSON.stringify('light'))
+        this.appState.theme = 'light'
+      }
     })
 
     return this.el
