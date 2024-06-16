@@ -1,0 +1,92 @@
+.calendar__table {
+  border-collapse: collapse;
+  border-radius: 8px;
+}
+
+.calendar-list__caption {
+  background-color: rgba(255, 246, 206, 0.8);
+  padding: 10px 0;
+}
+
+.dark-theme .calendar-list__caption {
+  background-color: rgba(255, 181, 10, 0.8);
+}
+
+.calendar__table-cell:hover {
+  background-color: rgba(255, 246, 206, 0.5);
+}
+
+.calendar__table-cell,
+.calendar__table-head {
+  border: 1px solid var(--black-color);
+  padding: 18px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.calendar__table-cell {
+  transition: background .3s;
+  position: relative;
+}
+
+.calendar__table-cell {
+  padding: 32px;
+}
+
+.calendar__table-cell button {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: transparent;
+  border: none;
+  color: var(--black-color);
+  cursor: pointer;
+}
+
+.calendar__table-head {
+  font-weight: 700;
+  background-color: #fff6ce;
+}
+
+.calendar__table-cell--empty {
+  opacity: 0.2;
+  background-color: rgba(144, 144, 144, 0.4);
+}
+
+.dark-theme .calendar__table-cell--empty {
+  background-color: var(--gray-color);
+}
+
+.dark-theme .calendar__table-cell--now {
+  background-color: rgba(255, 181, 10, 0.3);
+}
+
+.dark-theme .calendar__table-cell:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.dark-theme .calendar__table-head {
+  background-color: #ffb50a;
+}
+
+.dark-theme .calendar__table-cell button {
+  color: var(--white-color);
+}
+
+.calendar__table-cell--unavailable {
+  opacity: 0.4;
+}
+
+.calendar__table-cell--unavailable.calendar__table-cell {
+  user-select: none;
+}
+
+.calendar__table-cell--unavailable.calendar__table-cell button {
+  cursor: default;
+}
+
+.dark-theme .calendar__table-cell--unavailable.calendar__table-cell:hover {
+  background-color: transparent;
+}

@@ -1,7 +1,9 @@
+import { CalendarList } from "./components/calendar-list/calendar-list"
 import { Header } from "./components/header/header"
 import { Modal } from "./components/modal/modal"
 import { SettingsBar } from "./components/settings-bar/settings-bar"
 import onChange from "on-change"
+import { TaskColumn } from "./components/task-column/task-column"
 
 class App {
   #themeKey = 'theme'
@@ -26,10 +28,16 @@ class App {
   render() {
     this.app.innerHTML = ""
     const main = document.createElement('div')
+    const mainWrapper = document.createElement('div')
+    mainWrapper.classList.add('main-wrapper')
     this.appState.theme === 'dark' ? this.app.classList.add('dark-theme') : this.app.classList.remove('dark-theme')
     main.classList.add('main')
     this.renderHeader()
     main.append(new SettingsBar(this.appState).render())
+    mainWrapper.append(new CalendarList().render(new Date().getFullYear(), new Date().getMonth() + 1))
+    mainWrapper.append(new TaskColumn().render())
+    main.append(mainWrapper)
+
     this.app.append(main)
     this.openSettingsBar()
   }

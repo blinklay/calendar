@@ -11,6 +11,67 @@
     }
   }
 
+  class CalendarList extends DivComponent {
+    constructor() {
+      super();
+    }
+
+    // Function to change the order of the week
+    getDay(date) {
+      let day = date.getDay();
+      if (day === 0) day = 7;
+      return day - 1
+    }
+
+    render(year, month) {
+      this.el.classList.add('calendar-list');
+
+      const calendarContainer = document.createElement('div');
+      calendarContainer.classList.add('calendar-list__container');
+
+      let mon = month - 1;
+      let d = new Date(year, mon);
+
+      let table = `
+    <table class="calendar-list__table calendar__table">
+      <caption class="calendar-list__caption">${month}/${year}</caption>
+      <tr class="calendar__table-row">
+        <th class="calendar__table-head">пн</th>
+        <th class="calendar__table-head">вт</th>
+        <th class="calendar__table-head">ср</th>
+        <th class="calendar__table-head">чт</th>
+        <th class="calendar__table-head">пт</th>
+        <th class="calendar__table-head">сб</th>
+        <th class="calendar__table-head">вс</th>
+      </tr>
+      <tr>
+    `;
+
+      for (let i = 0; i < this.getDay(d); i++) {
+        table += `<td class="calendar__table-cell calendar__table-cell--empty"></td>`;
+      }
+
+      while (d.getMonth() == mon) {
+        table += `<td class="calendar__table-cell ${d.getDate() === new Date().getDate() ? "calendar__table-cell--now" : ""} ${d.getDate() < new Date().getDate() ? "calendar__table-cell--unavailable" : ""}">` + `<button>${d.getDate()}</button>` + "</td>";
+        if (this.getDay(d) % 7 === 6) {
+          table += "</tr><tr>";
+        }
+        d.setDate(d.getDate() + 1);
+      }
+
+      if (this.getDay(d) != 0) {
+        for (let i = this.getDay(d); i < 7; i++) {
+          table += "<td></td>";
+        }
+      }
+
+      table += "</tr></table>";
+      calendarContainer.innerHTML = table;
+      this.el.append(calendarContainer);
+      return this.el
+    }
+  }
+
   class Header extends DivComponent {
     constructor(appState) {
       super();
@@ -1230,6 +1291,41 @@
   onChange.target = proxy => proxy?.[TARGET] ?? proxy;
   onChange.unsubscribe = proxy => proxy?.[UNSUBSCRIBE] ?? proxy;
 
+  class TaskColumn extends DivComponent {
+    constructor() {
+      super();
+    }
+
+    render() {
+      this.el.classList.add('task-column');
+
+      this.el.innerHTML = `
+    <span class="task-column__header">Текущие задачи:</span>
+    <ul class="task-column__list">
+      <li class="task-column__item">
+       <div class="task-column__item-info">
+         <span class="task-column__item-title">Wach a car</span>
+        <p class="task-column__item-text">
+          washing a car for my eyes to beaty
+        </p>
+        <div class="task-column__item-deadline">
+          <span>Птн,</span>
+          <span>Июнь</span>
+          <span>28</span>
+        </div>
+       </div>
+       <div class="task-column__item-btns">
+          <button class="task-column__item-btn task-column__item-btn--setting"></button>
+          <button class="task-column__item-btn task-column__item-btn--important"></button>
+       </div>
+      </li>
+    </ul>
+    `;
+
+      return this.el
+    }
+  }
+
   class App {
     #themeKey = 'theme'
     #themeDefault = "light"
@@ -1253,10 +1349,16 @@
     render() {
       this.app.innerHTML = "";
       const main = document.createElement('div');
+      const mainWrapper = document.createElement('div');
+      mainWrapper.classList.add('main-wrapper');
       this.appState.theme === 'dark' ? this.app.classList.add('dark-theme') : this.app.classList.remove('dark-theme');
       main.classList.add('main');
       this.renderHeader();
       main.append(new SettingsBar(this.appState).render());
+      mainWrapper.append(new CalendarList().render(new Date().getFullYear(), new Date().getMonth() + 1));
+      mainWrapper.append(new TaskColumn().render());
+      main.append(mainWrapper);
+
       this.app.append(main);
       this.openSettingsBar();
     }
