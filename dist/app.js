@@ -11,9 +11,49 @@
     }
   }
 
-  class CalendarList extends DivComponent {
+  class TaskModal extends DivComponent {
     constructor() {
       super();
+    }
+
+    render(date) {
+      this.el.classList.add("task-modal");
+
+      this.el.innerHTML = `
+    <div class="task-modal__wrapper">
+      <p class="task-modal__title">Добавить новую задачу на <span>${date}</span>?</p>
+      <form class="task-modal__form">
+        <label class="task-modal__label">
+          Введите заголовок:
+          <input type="text" class="task-modal__input">
+        </label>
+        <label class="task-modal__label">
+          Введите описание (макс. 100 символов):
+          <input type="text" class="task-modal__input">
+        </label>
+        <button class="task-modal__btn">Создать задачу</button>
+      </form>
+    </div>
+    <button class="task-modal__btn-close"></button>
+    `;
+
+      this.el.querySelector(".task-modal__btn-close").addEventListener('click', this.closeModal.bind(this));
+
+      return this.el
+    }
+
+    closeModal(e) {
+      this.el.classList.remove("task-modal--open");
+      setTimeout(() => {
+        this.el.remove();
+      }, 300);
+    }
+  }
+
+  class CalendarList extends DivComponent {
+    constructor(app) {
+      super();
+      this.app = app;
     }
 
     // Function to change the order of the week
@@ -68,8 +108,27 @@
       table += "</tr></table>";
       calendarContainer.innerHTML = table;
       this.el.append(calendarContainer);
+
+      this.el.querySelectorAll('.calendar__table-cell button').forEach(btn => {
+        btn.addEventListener('click', this.openTaskModal.bind(this));
+      });
+
       return this.el
     }
+
+    openTaskModal(e) {
+      if (this.app.querySelector(".task-modal--open")) this.app.querySelector(".task-modal--open").remove();
+
+      const table = e.target.closest('.calendar-list__table');
+      const tableCaption = table.querySelector('caption');
+
+      const modal = new TaskModal().render(`${e.target.textContent}/${tableCaption.textContent}`);
+      this.app.append(modal);
+      setTimeout(() => {
+        modal.classList.add('task-modal--open');
+      }, 300);
+    }
+
   }
 
   class Header extends DivComponent {
@@ -1355,7 +1414,7 @@
       main.classList.add('main');
       this.renderHeader();
       main.append(new SettingsBar(this.appState).render());
-      mainWrapper.append(new CalendarList().render(new Date().getFullYear(), new Date().getMonth() + 1));
+      mainWrapper.append(new CalendarList(this.app).render(new Date().getFullYear(), new Date().getMonth() + 1));
       mainWrapper.append(new TaskColumn().render());
       main.append(mainWrapper);
 

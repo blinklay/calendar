@@ -1,9 +1,11 @@
 import { DivComponent } from "../../common/div-component";
+import { TaskModal } from "../task-modal/task-modal";
 import "./calendar-list.css"
 
 export class CalendarList extends DivComponent {
-  constructor() {
+  constructor(app) {
     super()
+    this.app = app
   }
 
   // Function to change the order of the week
@@ -58,6 +60,25 @@ export class CalendarList extends DivComponent {
     table += "</tr></table>"
     calendarContainer.innerHTML = table
     this.el.append(calendarContainer)
+
+    this.el.querySelectorAll('.calendar__table-cell button').forEach(btn => {
+      btn.addEventListener('click', this.openTaskModal.bind(this))
+    })
+
     return this.el
   }
+
+  openTaskModal(e) {
+    if (this.app.querySelector(".task-modal--open")) this.app.querySelector(".task-modal--open").remove()
+
+    const table = e.target.closest('.calendar-list__table')
+    const tableCaption = table.querySelector('caption')
+
+    const modal = new TaskModal().render(`${e.target.textContent}/${tableCaption.textContent}`)
+    this.app.append(modal)
+    setTimeout(() => {
+      modal.classList.add('task-modal--open')
+    }, 300);
+  }
+
 }

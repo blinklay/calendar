@@ -34,7 +34,7 @@ class App {
     main.classList.add('main')
     this.renderHeader()
     main.append(new SettingsBar(this.appState).render())
-    mainWrapper.append(new CalendarList().render(new Date().getFullYear(), new Date().getMonth() + 1))
+    mainWrapper.append(new CalendarList(this.app).render(new Date().getFullYear(), new Date().getMonth() + 1))
     mainWrapper.append(new TaskColumn().render())
     main.append(mainWrapper)
 
