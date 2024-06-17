@@ -15,11 +15,11 @@ export class TaskModal extends DivComponent {
       <form class="task-modal__form">
         <label class="task-modal__label">
           Введите заголовок:
-          <input type="text" class="task-modal__input">
+          <input type="text" class="task-modal__input task-modal__input--title">
         </label>
         <label class="task-modal__label">
           Введите описание (макс. 100 символов):
-          <input type="text" class="task-modal__input">
+          <input type="text" class="task-modal__input task-modal__input--descr">
         </label>
         <button class="task-modal__btn">Создать задачу</button>
       </form>
@@ -28,8 +28,41 @@ export class TaskModal extends DivComponent {
     `
 
     this.el.querySelector(".task-modal__btn-close").addEventListener('click', this.closeModal.bind(this))
+    this.el.querySelector('.task-modal__form').addEventListener("submit", this.processingForm.bind(this))
 
     return this.el
+  }
+
+  processingForm(e) {
+    e.preventDefault()
+
+    const title = e.target.querySelector('.task-modal__input--title')
+    const descr = e.target.querySelector('.task-modal__input--descr')
+
+    if (title.value === "" || descr.value === "") {
+      const message = document.createElement('div')
+      message.classList.add("form-message")
+      message.textContent = "Не заполнено обязательное поле!"
+
+      setTimeout(() => {
+        message.classList.add("form-message--show")
+        title.classList.add("form-message--blink")
+        descr.classList.add("form-message--blink")
+      }, 300);
+
+      setTimeout(() => {
+        title.classList.remove("form-message--blink")
+        descr.classList.remove("form-message--blink")
+        message.classList.remove("form-message--show")
+      }, 1300);
+
+      e.target.after(message)
+
+      setTimeout(() => {
+        message.remove()
+      }, 2000);
+    }
+
   }
 
   closeModal(e) {

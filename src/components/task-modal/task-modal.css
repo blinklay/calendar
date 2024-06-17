@@ -23,6 +23,37 @@
   visibility: visible;
 }
 
+.form-message {
+  margin-top: 20px;
+  text-align: center;
+  text-decoration: underline;
+
+  transform: scale(0);
+  transition: transform .3s;
+}
+
+.form-message--show {
+  transform: scale(1);
+}
+
+.form-message--blink {
+  animation: fade 500ms infinite alternate;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
 .task-modal__btn-close {
   position: absolute;
   top: 0;
