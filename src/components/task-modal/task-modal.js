@@ -2,16 +2,28 @@ import { DivComponent } from "../../common/div-component";
 import "./task-modal.css"
 
 export class TaskModal extends DivComponent {
-  constructor() {
+  #tasksKey = "tasks"
+  constructor(date, appState) {
     super()
+    this.date = date
+    this.appState = appState
   }
 
-  render(date) {
-    this.el.classList.add("task-modal")
+  foramtDate(date) {
+    const arr = date.split("/")
 
+    let temp = arr[0]
+    arr[0] = arr[1]
+    arr[1] = temp
+
+    return arr.join("/")
+  }
+
+  render() {
+    this.el.classList.add("task-modal")
     this.el.innerHTML = `
     <div class="task-modal__wrapper">
-      <p class="task-modal__title">Добавить новую задачу на <span>${date}</span>?</p>
+      <p class="task-modal__title">Добавить новую задачу на <span>${this.date}</span>?</p>
       <form class="task-modal__form">
         <label class="task-modal__label">
           Введите заголовок:
@@ -61,11 +73,25 @@ export class TaskModal extends DivComponent {
       setTimeout(() => {
         message.remove()
       }, 2000);
+
+      return
     }
 
+    const task = {
+      title: title.value,
+      descr: descr.value,
+      date: new Date(this.foramtDate(this.date))
+    }
+
+    const tasksList = localStorage.getItem(this.#tasksKey) ? JSON.parse(localStorage.getItem(this.#tasksKey)) : []
+    tasksList.push(task)
+    this.appState.taskList = tasksList
+    localStorage.setItem(this.#tasksKey, JSON.stringify(tasksList))
+
+    this.closeModal()
   }
 
-  closeModal(e) {
+  closeModal() {
     this.el.classList.remove("task-modal--open")
     setTimeout(() => {
       this.el.remove()

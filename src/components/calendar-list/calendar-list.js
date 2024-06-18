@@ -3,9 +3,10 @@ import { TaskModal } from "../task-modal/task-modal";
 import "./calendar-list.css"
 
 export class CalendarList extends DivComponent {
-  constructor(app) {
+  constructor(app, appState) {
     super()
     this.app = app
+    this.appState = appState
   }
 
   // Function to change the order of the week
@@ -74,7 +75,7 @@ export class CalendarList extends DivComponent {
     const table = e.target.closest('.calendar-list__table')
     const tableCaption = table.querySelector('caption')
 
-    const modal = new TaskModal().render(`${e.target.textContent}/${tableCaption.textContent}`)
+    const modal = new TaskModal(`${e.target.textContent}/${tableCaption.textContent}`, this.appState).render()
     this.app.append(modal)
     setTimeout(() => {
       modal.classList.add('task-modal--open')

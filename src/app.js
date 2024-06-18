@@ -8,6 +8,7 @@ import { TaskColumn } from "./components/task-column/task-column"
 class App {
   #themeKey = 'theme'
   #themeDefault = "light"
+  #tasksKey = "tasks"
   constructor() {
     this.app = document.getElementById('root')
     this.appState = onChange(this.appState, this.appStateHook.bind(this))
@@ -15,13 +16,19 @@ class App {
   }
 
   appState = {
-    theme: localStorage.getItem(this.#themeKey) ? JSON.parse(localStorage.getItem(this.#themeKey)) : this.#themeDefault
+    theme: localStorage.getItem(this.#themeKey) ? JSON.parse(localStorage.getItem(this.#themeKey)) : this.#themeDefault,
+    taskList: localStorage.getItem(this.#tasksKey) ? JSON.parse(localStorage.getItem(this.#tasksKey)) : []
+  }
+
+  modalMessage = {
+    "taskList": 'Новая заадча добавлена!',
+    "theme": 'Тема изменена!'
   }
 
   appStateHook(path) {
-    if (path === "theme") {
+    if (path === "theme" || path === "taskList") {
       this.render()
-      this.app.prepend(new Modal().render('Тема изменена!', "succes"))
+      this.app.prepend(new Modal().render(this.modalMessage[path], "succes"))
     }
   }
 
@@ -34,8 +41,8 @@ class App {
     main.classList.add('main')
     this.renderHeader()
     main.append(new SettingsBar(this.appState).render())
-    mainWrapper.append(new CalendarList(this.app).render(new Date().getFullYear(), new Date().getMonth() + 1))
-    mainWrapper.append(new TaskColumn().render())
+    mainWrapper.append(new CalendarList(this.app, this.appState).render(new Date().getFullYear(), new Date().getMonth() + 1))
+    mainWrapper.append(new TaskColumn(this.appState).render())
     main.append(mainWrapper)
 
     this.app.append(main)

@@ -428,6 +428,9 @@ input:checked+.slider:before {
 .task-column {
   background-color: var(--gray-color);
   width: 100%;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--black-color);
 }
 
 .task-column__header {

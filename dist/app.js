@@ -12,16 +12,28 @@
   }
 
   class TaskModal extends DivComponent {
-    constructor() {
+    #tasksKey = "tasks"
+    constructor(date, appState) {
       super();
+      this.date = date;
+      this.appState = appState;
     }
 
-    render(date) {
-      this.el.classList.add("task-modal");
+    foramtDate(date) {
+      const arr = date.split("/");
 
+      let temp = arr[0];
+      arr[0] = arr[1];
+      arr[1] = temp;
+
+      return arr.join("/")
+    }
+
+    render() {
+      this.el.classList.add("task-modal");
       this.el.innerHTML = `
     <div class="task-modal__wrapper">
-      <p class="task-modal__title">Добавить новую задачу на <span>${date}</span>?</p>
+      <p class="task-modal__title">Добавить новую задачу на <span>${this.date}</span>?</p>
       <form class="task-modal__form">
         <label class="task-modal__label">
           Введите заголовок:
@@ -71,11 +83,25 @@
         setTimeout(() => {
           message.remove();
         }, 2000);
+
+        return
       }
 
+      const task = {
+        title: title.value,
+        descr: descr.value,
+        date: new Date(this.foramtDate(this.date))
+      };
+
+      const tasksList = localStorage.getItem(this.#tasksKey) ? JSON.parse(localStorage.getItem(this.#tasksKey)) : [];
+      tasksList.push(task);
+      this.appState.taskList = tasksList;
+      localStorage.setItem(this.#tasksKey, JSON.stringify(tasksList));
+
+      this.closeModal();
     }
 
-    closeModal(e) {
+    closeModal() {
       this.el.classList.remove("task-modal--open");
       setTimeout(() => {
         this.el.remove();
@@ -84,9 +110,10 @@
   }
 
   class CalendarList extends DivComponent {
-    constructor(app) {
+    constructor(app, appState) {
       super();
       this.app = app;
+      this.appState = appState;
     }
 
     // Function to change the order of the week
@@ -155,7 +182,7 @@
       const table = e.target.closest('.calendar-list__table');
       const tableCaption = table.querySelector('caption');
 
-      const modal = new TaskModal().render(`${e.target.textContent}/${tableCaption.textContent}`);
+      const modal = new TaskModal(`${e.target.textContent}/${tableCaption.textContent}`, this.appState).render();
       this.app.append(modal);
       setTimeout(() => {
         modal.classList.add('task-modal--open');
@@ -1384,8 +1411,9 @@
   onChange.unsubscribe = proxy => proxy?.[UNSUBSCRIBE] ?? proxy;
 
   class TaskColumn extends DivComponent {
-    constructor() {
+    constructor(appState) {
       super();
+      this.appState = appState;
     }
 
     render() {
@@ -1393,17 +1421,23 @@
 
       this.el.innerHTML = `
     <span class="task-column__header">Текущие задачи:</span>
-    <ul class="task-column__list">
+    <ul class="task-column__list"></ul>
+    `;
+
+      const list = this.el.querySelector('.task-column__list');
+
+      for (const { title, descr, date } of this.appState.taskList) {
+        const item = `
       <li class="task-column__item">
        <div class="task-column__item-info">
-         <span class="task-column__item-title">Wach a car</span>
+         <span class="task-column__item-title">${title}</span>
         <p class="task-column__item-text">
-          washing a car for my eyes to beaty
+          ${descr}
         </p>
         <div class="task-column__item-deadline">
-          <span>Птн,</span>
-          <span>Июнь</span>
-          <span>28</span>
+          <span>${this.formatDate(date).day},</span>
+          <span>${this.formatDate(date).month}</span>
+          <span>${this.formatDate(date).date}</span>
         </div>
        </div>
        <div class="task-column__item-btns">
@@ -1411,16 +1445,36 @@
           <button class="task-column__item-btn task-column__item-btn--important"></button>
        </div>
       </li>
-    </ul>
-    `;
+      `;
+
+        list.innerHTML += item;
+      }
 
       return this.el
+    }
+
+    formatDate(dateString) {
+      const date = new Date(dateString);
+
+      const dayFormatter = new Intl.DateTimeFormat('ru-RU', { weekday: "short" });
+      const monthFormatter = new Intl.DateTimeFormat("ru-RU", { month: "short" });
+
+      const day = dayFormatter.format(date).charAt(0).toUpperCase() + dayFormatter.format(date).slice(1);
+      const month = monthFormatter.format(date).charAt(0).toUpperCase() + monthFormatter.format(date).slice(1);
+      const dayOfMonth = date.getDate();
+
+      return {
+        day: day,
+        month: month,
+        date: dayOfMonth
+      };
     }
   }
 
   class App {
     #themeKey = 'theme'
     #themeDefault = "light"
+    #tasksKey = "tasks"
     constructor() {
       this.app = document.getElementById('root');
       this.appState = onChange(this.appState, this.appStateHook.bind(this));
@@ -1428,13 +1482,19 @@
     }
 
     appState = {
-      theme: localStorage.getItem(this.#themeKey) ? JSON.parse(localStorage.getItem(this.#themeKey)) : this.#themeDefault
+      theme: localStorage.getItem(this.#themeKey) ? JSON.parse(localStorage.getItem(this.#themeKey)) : this.#themeDefault,
+      taskList: localStorage.getItem(this.#tasksKey) ? JSON.parse(localStorage.getItem(this.#tasksKey)) : []
+    }
+
+    modalMessage = {
+      "taskList": 'Новая заадча добавлена!',
+      "theme": 'Тема изменена!'
     }
 
     appStateHook(path) {
-      if (path === "theme") {
+      if (path === "theme" || path === "taskList") {
         this.render();
-        this.app.prepend(new Modal().render('Тема изменена!', "succes"));
+        this.app.prepend(new Modal().render(this.modalMessage[path], "succes"));
       }
     }
 
@@ -1447,8 +1507,8 @@
       main.classList.add('main');
       this.renderHeader();
       main.append(new SettingsBar(this.appState).render());
-      mainWrapper.append(new CalendarList(this.app).render(new Date().getFullYear(), new Date().getMonth() + 1));
-      mainWrapper.append(new TaskColumn().render());
+      mainWrapper.append(new CalendarList(this.app, this.appState).render(new Date().getFullYear(), new Date().getMonth() + 1));
+      mainWrapper.append(new TaskColumn(this.appState).render());
       main.append(mainWrapper);
 
       this.app.append(main);
